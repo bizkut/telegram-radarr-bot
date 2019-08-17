@@ -150,35 +150,57 @@ SonarrMessage.prototype.performCalendarSearch = function(futureDays) {
   var fromDate = moment().toISOString();
   var toDate = moment().add(futureDays, 'day').toISOString();
 
-  logger.info(i18n.__('logSonarrUpcomingCommandSent', self.username, fromDate, toDate));
+  logger.debug(i18n.__('logSonarrUpcomingCommandSent', self.username, fromDate, toDate));
 
-  self.sonarr.get('calendar', { 'start': fromDate, 'end': toDate})
-  .then(function (episode) {
-    if (!episode.length) {
-      throw new Error(i18n.__('errorSonarrNothingInCalendar'));
-    }
+  self.sonarr.get('calendar', { 'start': fromDate, 'end': toDate })
+      .then(function(movies) {
+          if(!movies.length) {
+              throw new Error(i18n.__('errorSonarrNothingInCalendar'));
+          }
 
-    var lastDate = null;
-    var response = [];
-    _.forEach(episode, function(n, key) {
-      var done = (n.hasFile ? i18n.__('SonarrDone') : '');
-      var niceDate = moment(n.physicalRelease).format("MMM Do YYYY");
+          // decide which date to sort by and add as an additional field to the movie
+          // Also change fudge the status for the message (we want to change the new status on that date)
+          _.forEach(movies, function(movie, key) {
+            if (movie.status === "announced") {
+              movie.sortDate = movie.inCinemas
+              movie.status = i18n.__('RadarrInCinemas')
+            } else if(movie.status === "inCinemas"){
+                movie.sortDate = movie.physicalRelease
+                movie.status = i18n.__('RadarrPhysical')
+            }
+          })
 
-      // Add an empty line to break list of multiple days
-      // if(lastDate != null && n.airDate != lastDate) response.push(' ');
-      logger.info(n);
+          // sort movies by release date
+          movies.sort(function(a,b) {
+            var keyA = new Date(a.sortDate);
+            var keyB = new Date(b.sortDate);
 
-      response.push(niceDate + ' - ' + n.title + done);
-      lastDate = n.airDate;
-    });
+            if (keyA < keyB) return -1;
+            if (keyA > keyB) return 1;
+            return 0;
+          })
 
-    logger.info(i18n.__("logSonarrFoundSeries", self.username, response.join(',')));
+          var lastDate = null;
+          var response = [];
+          _.forEach(movies, function(n, key) {
+              var done = (n.hasFile ? i18n.__('SonarrDone') : '');
+              var niceDate = moment(n.sortDate).format("MMM Do YYYY");
+              logger.debug(niceDate + ' - ' + n.status + ' - ' + n.title + done);
 
-    return self._sendMessage(response.join('\n'), []);
-  })
-  .catch(function(error) {
-    return self._sendMessage(error);
-  });
+              // Add an empty line to break list of multiple days
+              // if(lastDate != null && n.airDate != lastDate) response.push(' ');
+              response.push(niceDate + ' - ' + n.status + ' - ' + n.title + done);
+              lastDate = n.airDate;
+          });
+
+          logger.info(i18n.__("logSonarrFoundSeries", self.username, response.join(',')));
+
+          return self._sendMessage(response.join('\n'), []);
+      })
+      .catch(function(error) {
+          return self._sendMessage(error);
+      });
+
 };
 
 

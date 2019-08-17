@@ -155,5 +155,7 @@
 	"selectSeriesType": "*Select which type of series*",
 	"askUsingSeasonFolders": "*Would you like to use season folders?*",
 	"searchForMovieNow": "*Would you like to search for the movie now?*",
-	"botChatCommandsCleared": "Command cleared"
+	"botChatCommandsCleared": "Command cleared",
+        "RadarrInCinemas": "_In Cinemas_",
+        "RadarrPhysical": "_Physical_"
 }
