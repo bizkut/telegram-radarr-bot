@@ -112,33 +112,17 @@ SonarrMessage.prototype.performWantedSearch = function() {
 
   logger.info(i18n.__('logSonarrWantedCommandSent', self.username));
 
-  self.sonarr.get('/wanted/missing', {
-    'page': 1,
-    'pageSize': 50,
-    'sortKey': 'airDateUtc',
-    'sortDir': 'desc'
+  self.sonarr.post('command', {
+      'name': 'missingMoviesSearch',
+      'filterKey': 'monitored',
+      'filterVaule': 'true'
   })
-  .then(function(wantedEpisodes) {
-    var episodeIds = [];
-    _.forEach(wantedEpisodes.records, function(n, key) {
-      episodeIds.push(n.id);
-    });
-    return episodeIds;
-  })
-  .then(function(episodes) {
-    self.sonarr.post('command', {
-      'name': 'EpisodeSearch',
-      'episodeIds': episodes
-    })
-    .then(function() {
-      logger.info(i18n.__('logSonarrWantedCommandExecuted', self.username));
-      return self._sendMessage(i18n.__('botChatSonarrWantedCommandExecuted'));
-    })
-    .catch(function(error) {
-      return self._sendMessage(error);
-    });
+  .then(function() {
+    logger.info(i18n.__('logSonarrWantedCommandExecuted', self.username));
+    return self._sendMessage(i18n.__('botChatSonarrWantedCommandExecuted'));
   })
   .catch(function(error) {
+    logger.debug('catch movies return message')
     return self._sendMessage(error);
   });
 };
@@ -631,7 +615,7 @@ SonarrMessage.prototype.sendAddSeries = function(searchForMovie) {
  */
 SonarrMessage.prototype._sendMessage = function(message, keyboard) {
   var self = this;
-  keyboard = keyboard || null;
+  keyboard = keyboard || [];
 
   var options;
   if (message instanceof Error) {
