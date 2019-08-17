@@ -40,34 +40,22 @@ SonarrMessage.prototype.performLibrarySearch = function(searchText) {
   var self = this;
 
   var query = searchText;
-  console.log('debug1');
   self.sonarr.get('movie').then(function(result) {
-    console.log('debug2');
     logger.info(i18n.__('logSonarrAllSeries',self.username));
 
     _.sortBy(result, 'title');
-    console.log('debug3');
 
     var response = [];
-    console.log('debug4');
     _.forEach(result, function(n, key) {
-      console.log('debug5');
-      console.log(n);
-      console.log(key);
       var series = '[' + n.title + '](https://www.imdb.com/title/' + n.imdbId + ')' + (n.year ? ' - _' + n.year + '_' : '');
       if (query) {
-        console.log('debug6');
         if (n.title.search( new RegExp(query, 'i') ) !== -1) {
-          console.log('debug7');
           response.push(series);
         }
       } else {
-        console.log('debug8');
         response.push(series);
       }
-      console.log('debug9');
     });
-    console.log('debug10');
 
     if (!response.length) {
       throw new Error(i18n.__('errorSonarrUnableToLocate', query));
@@ -173,48 +161,35 @@ SonarrMessage.prototype.performLibraryRefresh = function() {
 };
 
 SonarrMessage.prototype.performCalendarSearch = function(futureDays) {
-  logger.info('Debug1');
   var self = this;
-  logger.info('Debug2');
 
   var fromDate = moment().toISOString();
   var toDate = moment().add(futureDays, 'day').toISOString();
 
-  logger.info('Debug3');
   logger.info(i18n.__('logSonarrUpcomingCommandSent', self.username, fromDate, toDate));
-  logger.info('Debug4');
 
   self.sonarr.get('calendar', { 'start': fromDate, 'end': toDate})
   .then(function (episode) {
     if (!episode.length) {
       throw new Error(i18n.__('errorSonarrNothingInCalendar'));
     }
-    logger.info('Debug5');
 
     var lastDate = null;
     var response = [];
     _.forEach(episode, function(n, key) {
-      logger.info('Debug6');
       var done = (n.hasFile ? i18n.__('SonarrDone') : '');
       var niceDate = moment(n.physicalRelease).format("MMM Do YYYY");
-      logger.info(niceDate);
-      logger.info('Debug61');
 
       // Add an empty line to break list of multiple days
       // if(lastDate != null && n.airDate != lastDate) response.push(' ');
-      logger.info('Debug62');
       logger.info(n);
 
       response.push(niceDate + ' - ' + n.title + done);
-      logger.info('Debug63');
       lastDate = n.airDate;
-      logger.info('Debug64');
     });
-    logger.info('Debug7');
 
     logger.info(i18n.__("logSonarrFoundSeries", self.username, response.join(',')));
 
-    logger.info('Debug8');
     return self._sendMessage(response.join('\n'), []);
   })
   .catch(function(error) {
@@ -317,7 +292,7 @@ SonarrMessage.prototype.confirmShowSelect = function(displayName) {
     self.sonarr.get('movie').then(function(result) {
       logger.info(i18n.__('logSonarrLookingForExistingSeries', self.username));
 
-      var existingSeries = _.filter(result, function(item) { return item.tvdbId === series.tmdbId; })[0];
+      var existingSeries = _.filter(result, function(item) { return item.tmdbId === series.tvdbId; })[0];
       if (existingSeries) {
         throw new Error(i18n.__('errorSonarrSerieAlreadyTracked'));
       }

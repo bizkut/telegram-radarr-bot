@@ -79,6 +79,22 @@ bot.on('message', function(msg) {
  
   var sonarr = new SonarrMessage(bot, user, cache);
 
+  /*
+   * handle clear command
+   */
+  if(/^\/clear$/g.test(message)) {
+      if(isAuthorized(user.id)) {
+          clearCache(user.id);
+          return bot.sendMessage(user.id, i18n.__('botChatCommandsCleared'), {
+              'reply_markup': {
+                  'hide_keyboard': true
+              }
+          });
+      } else {
+          return replyWithError(user.id, new Error(i18n.__('notAuthorized')));
+      }
+  }
+
   if (/^\/library\s?(.+)?$/g.test(message)) {
     if(isAuthorized(user.id)){
        var searchText = /^\/library\s?(.+)?/g.exec(message)[1] || null;
@@ -391,27 +407,6 @@ bot.onText(/\/unrevoke/, function(msg) {
       'reply_markup': JSON.stringify({ keyboard: keyboardList, one_time_keyboard: true })
     });
   }
-});
-
-/*
- * handle clear command
- */
-bot.onText(/\/clear/, function(msg) {
-  var fromId = msg.from.id;
-  
-  if(isAuthorized(fromId)){
-    logger.info('user: %s, message: sent \'/clear\' command', fromId);
-    clearCache(fromId);
-    logger.info('user: %s, message: \'/clear\' command successfully executed', fromId);
-
-    return bot.sendMessage(fromId, 'All previously sent commands have been cleared, yey!', {
-      'reply_markup': {
-        'hide_keyboard': true
-      }
-     });
-   } else {
-     return replyWithError(fromId, new Error(i18n.__('notAuthorized')))
-   }
 });
 
 /*
