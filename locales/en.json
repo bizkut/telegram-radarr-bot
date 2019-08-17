@@ -144,7 +144,7 @@
         "errorSonarrCouldntFindFolders": "Could not get folders, try searching again",
         "errorSonarrCouldntGetProfile": "Could not get profiles, try searching again",
         "errorSonarrNothingInCalendar": "Nothing in the calendar for the specified time.",
-        "errorSonarrSerieAlreadyTracked": "Series already exists and is already being tracked by Radarr",
+        "errorSonarrSerieAlreadyTracked": "Movie already exists and is already being tracked by Radarr",
         "errorSonarrSerieNotFound": "could not find %s try searching again",
         "errorSonarrUnableToLocate": "Unable to locate %s in radarr library",
         "errorSonarrWentWrong": "Something went wrong, try searching again",

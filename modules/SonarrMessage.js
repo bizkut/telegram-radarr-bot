@@ -315,15 +315,15 @@ SonarrMessage.prototype.confirmShowSelect = function(displayName) {
   // @todo fix existing check
   workflow.on('checkSonarrSeries', function () {
     self.sonarr.get('movie').then(function(result) {
-  //     logger.info(i18n.__('logSonarrLookingForExistingSeries', self.username));
+      logger.info(i18n.__('logSonarrLookingForExistingSeries', self.username));
 
-  //     var existingSeries = _.filter(result, function(item) { return item.tvdbId === series.tmdbId; })[0];
-  //     if (existingSeries) {
-  //       throw new Error(i18n.__('errorSonarrSerieAlreadyTracked'));
-  //     }
+      var existingSeries = _.filter(result, function(item) { return item.tvdbId === series.tmdbId; })[0];
+      if (existingSeries) {
+        throw new Error(i18n.__('errorSonarrSerieAlreadyTracked'));
+      }
       workflow.emit('confirmShow');
-  //   }).catch(function(error) {
-  //     return self._sendMessage(error);
+    }).catch(function(error) {
+      return self._sendMessage(error);
     });
   });
 
@@ -496,8 +496,6 @@ SonarrMessage.prototype.sendFolderList = function(profileName) {
 SonarrMessage.prototype.searchForMovie = function(folderName) {
   var self = this;
 
-  logger.info('running search for movie');
-
   var folderList = self.cache.get('seriesFolderList' + self.user.id);
   if (!folderList) {
     return self._sendMessage(new Error(i18n.__('errorSonarrWentWrong')));
@@ -507,6 +505,28 @@ SonarrMessage.prototype.searchForMovie = function(folderName) {
   if (!folder) {
     return self._sendMessage(new Error(i18n.__('errorSonarrWentWrong')));
   }
+
+  var currentYear = new Date().getFullYear();
+  logger.info('curent year: ' + currentYear);
+  var seriesId = self.cache.get('seriesId' + self.user.id);
+  var seriesList = self.cache.get('seriesList' + self.user.id);
+  var series = _.filter(seriesList, function(item) { return item.id === seriesId; })[0];
+  logger.info('movie year: ' + series.year);
+  
+  if(series.year < currentYear) {
+    logger.info('movie came out in the past, will just search for it');
+
+    self.cache.set('seriesFolderId' + self.user.id, folder.folderId);
+    logger.info('breakpoint 1');
+    self.cache.set('seriesSearchForMovieList' + self.user.id, [{'type': i18n.__('globalYes')}, {'type': i18n.__('globalNo')}]);
+    self.cache.set('state' + self.user.id, state.sonarr.ADD_SERIES);
+    logger.info('breakpoint 2');
+
+    SonarrMessage.prototype.sendAddSeries.call(self, i18n.__('globalYes'));
+    return null;
+  }
+
+  // logger.info('running search for movie');
 
   logger.info(i18n.__('logSonarrSeasonFoldersListRequested', self.username));
 
@@ -562,6 +582,7 @@ SonarrMessage.prototype.sendAddSeries = function(searchForMovie) {
 
   if (!searchForMovieList) {
     console.log('searchForMovieList was not found');
+    logger.info('coudlnt find movielist');
     self._sendMessage(new Error(i18n.__('errorSonarrWentWrong')));
   }
 
@@ -580,6 +601,7 @@ SonarrMessage.prototype.sendAddSeries = function(searchForMovie) {
   postOpts.tmdbId           = series.tvdbId;
   postOpts.title            = series.title;
   postOpts.titleSlug        = series.titleSlug;
+  postOpts.year             = series.year;
   postOpts.rootFolderPath   = folder.path;
   postOpts.monitored        = true;
   postOpts.qualityProfileId = profile.profileId;
