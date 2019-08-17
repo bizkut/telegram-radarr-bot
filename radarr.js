@@ -134,6 +134,21 @@ bot.on('message', function(msg) {
     }
   }
 
+
+  if (/^https?:\/\/(www\.|m\.)imdb\.com\/[Tt]itle[?/]([a-zA-Z0-9]+)/g.test(message)) {
+    if(isAuthorized(user.id)){
+      
+      logger.info(i18n.__('botChatSonarrReceivedIMDbUrl', user.id, message));
+      var imdbId = /^https?:\/\/(www\.|m\.)imdb\.com\/[Tt]itle[?/]([a-zA-Z0-9]+)/g.exec(message)[2] || null;
+      logger.info('Searching for IMDdId: ' + imdbId);
+      return sonarr.sendIMDbId(imdbId);
+
+
+    } else {
+       return replyWithError(user.id, new Error(i18n.__('notAuthorized')));
+    }
+  }
+
   /*
    * /cid command
    * Gets the current chat id

@@ -275,6 +275,56 @@ SonarrMessage.prototype.sendSeriesList = function(seriesName) {
   });
 };
 
+/*
+ * handle the flow of adding a new series
+ */
+SonarrMessage.prototype.sendIMDbId = function(IMDbId) {
+  var self = this;
+
+  self.test = 'hello';
+
+  self.sonarr.get('movie/lookup/imdb', { 'imdbId': IMDbId }).then(function(result) {
+    // if (!result.length) {
+    //   throw new Error(i18n.__('errorSonarrSerieNotFound', IMDbId));
+    // }
+
+    var series = result;
+    logger.info(i18n.__('logSonarrUserImdbSearchRequested', self.username, IMDbId));
+
+    var seriesList = [];
+
+    var imageCover = null;
+    _.forEach(series.images, function(image, index){
+      if(image.coverType === 'poster'){
+        imageCover = image.url;
+      }
+    });
+
+    seriesList.push({
+      'id': 1,
+      'title': series.title,
+      'plot': series.overview,
+      'year': series.year,
+      'tvdbId': series.tmdbId,
+      'titleSlug': series.titleSlug,
+      'keyboardValue': series.tmdbId,
+      'coverUrl': imageCover
+    });
+
+    // set cache
+    self.cache.set('seriesList' + self.user.id, seriesList);
+    self.cache.set('state' + self.user.id, state.sonarr.CONFIRM);
+
+    SonarrMessage.prototype.confirmShowSelect.call(self, series.tmdbId);
+    return null;
+
+  })
+  .catch(function(error) {
+    return self._sendMessage(new Error(i18n.__('errorSonarrImdbLinkNotFound')));
+    // return self._sendMessage(error);
+  });
+};
+
 SonarrMessage.prototype.confirmShowSelect = function(displayName) {
   var self = this;
 
@@ -283,6 +333,8 @@ SonarrMessage.prototype.confirmShowSelect = function(displayName) {
   if (!seriesList) {
     return self._sendMessage(new Error(i18n.__('errorSonarrWentWrong')));
   }
+
+  logger.info(seriesList);
 
   var series = _.filter(seriesList, function(item) { return item.keyboardValue === displayName; })[0];
   if (!series) {
