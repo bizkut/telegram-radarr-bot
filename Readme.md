@@ -17,7 +17,7 @@ Getting Started
 
 ```bash
 # Clone the repository
-git clone https://github.com/imran0/telegram-radarr-bot
+git clone https://github.com/bizkut/telegram-radarr-bot
 ```
 
 ```bash
@@ -87,7 +87,7 @@ Found 6 series:
 
 Use the custom keyboard to select the series.
 
-![Step One](https://raw.githubusercontent.com/onedr0p/telegram-sonarr-bot/master/examples/step_1.png)
+![Step One](https://raw.githubusercontent.com/bizkut/telegram-radarr-bot/master/examples/step_1.png)
 
 The bot will ask you for the quality
 
@@ -98,7 +98,7 @@ Found 2 profiles:
 
 Send the profile using the custom keyboard
 
-![Step Two](https://raw.githubusercontent.com/onedr0p/telegram-sonarr-bot/master/examples/step_2.png)
+![Step Two](https://raw.githubusercontent.com/bizkut/telegram-radarr-bot/master/examples/step_2.png)
 
 The bot will ask you where the path you want the series to go
 
@@ -110,7 +110,7 @@ Found 2 folders:
 
 Send the folder using the custom keyboard
 
-![Step Two](https://raw.githubusercontent.com/onedr0p/telegram-sonarr-bot/master/examples/step_3.png)
+![Step Two](https://raw.githubusercontent.com/bizkut/telegram-radarr-bot/master/examples/step_3.png)
 
 Lastly, the bot will ask you which seasons you would like to monitor/download
 
@@ -125,7 +125,7 @@ Select which seasons to monitor:
 
 Send the monitor type using the custom keyboard
 
-![Step Two](https://raw.githubusercontent.com/onedr0p/telegram-sonarr-bot/master/examples/step_4.png)
+![Step Two](https://raw.githubusercontent.com/bizkut/telegram-radarr-bot/master/examples/step_4.png)
 
 If everything goes well, you'll see a text from the bot saying the series was added.
 
@@ -178,7 +178,7 @@ docker run --name telegram-sonarr-bot \
   telegram-sonarr-bot
 ```
 
-**Prebuilt** Docker image for this bot can be found [here](https://hub.docker.com/r/subzero79/docker-telegram-sonarr-bot), thanks [@subzero79](https://github.com/subzero79)
+**Prebuilt** Docker image for this bot can be found [here](https://hub.docker.com/r/bizkut/docker-telegram-radarr-bot)
 
 ## License
 (The MIT License)
