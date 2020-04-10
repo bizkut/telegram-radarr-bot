@@ -25,6 +25,6 @@
   "author": "Devin Buhl <devin.kray@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node sonarr.js"
+    "start": "node radarr.js"
   }
 }
